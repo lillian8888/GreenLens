@@ -92,7 +92,7 @@ This extension uses the Claude API which costs money based on usage:
 ## Future Enhancements
 
 Ideas for improvement:
-- Auto-detect products and show badge
+- Points system incorporated in a ranking system
 - Compare similar products
 - Track sustainability over time with charts
 - Browser notifications for particularly unsustainable products
