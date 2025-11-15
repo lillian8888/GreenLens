@@ -110,5 +110,3 @@ For issues with:
 This is a demo project. Feel free to modify and improve it!
 
 ---
-
-Built with ❤️ and Claude AI
