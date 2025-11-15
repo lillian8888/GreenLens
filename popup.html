@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      width: 400px;
+      padding: 0;
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .container {
+      background: white;
+      margin: 0;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .header p {
+      margin: 5px 0 0 0;
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .content {
+      padding: 20px;
+    }
+
+    .api-key-section {
+      background: #f7fafc;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    .api-key-section label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: 5px;
+    }
+
+    .api-key-section input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      font-size: 12px;
+      box-sizing: border-box;
+    }
+
+    .api-key-section button {
+      margin-top: 8px;
+      width: 100%;
+      padding: 8px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .api-key-section button:hover {
+      background: #5a67d8;
+    }
+
+    .analyze-section {
+      margin-bottom: 15px;
+    }
+
+    #analyzeBtn {
+      width: 100%;
+      padding: 12px;
+      background: #48bb78;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    #analyzeBtn:hover {
+      background: #38a169;
+    }
+
+    #analyzeBtn:disabled {
+      background: #cbd5e0;
+      cursor: not-allowed;
+    }
+
+    .results {
+      margin-top: 15px;
+      padding: 15px;
+      background: #f7fafc;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .results.show {
+      display: block;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #667eea;
+    }
+
+    .score {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .score-circle {
+      display: inline-block;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #48bb78;
+      color: white;
+      line-height: 80px;
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .score-circle.low {
+      background: #f56565;
+    }
+
+    .score-circle.medium {
+      background: #ed8936;
+    }
+
+    .score-circle.high {
+      background: #48bb78;
+    }
+
+    .score-label {
+      font-size: 12px;
+      color: #718096;
+      font-weight: 600;
+    }
+
+    .analysis {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #2d3748;
+    }
+
+    .score-breakdown {
+      margin-bottom: 20px;
+    }
+
+    .breakdown-item {
+      margin-bottom: 15px;
+    }
+
+    .breakdown-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: 6px;
+    }
+
+    .breakdown-bar {
+      position: relative;
+      height: 24px;
+      background: #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .breakdown-fill {
+      height: 100%;
+      transition: width 0.5s ease;
+      border-radius: 12px;
+    }
+
+    .breakdown-fill.low {
+      background: linear-gradient(90deg, #fc8181 0%, #f56565 100%);
+    }
+
+    .breakdown-fill.medium {
+      background: linear-gradient(90deg, #f6ad55 0%, #ed8936 100%);
+    }
+
+    .breakdown-fill.high {
+      background: linear-gradient(90deg, #68d391 0%, #48bb78 100%);
+    }
+
+    .breakdown-score {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      font-weight: 700;
+      color: #2d3748;
+      background: white;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .summary {
+      background: white;
+      padding: 12px;
+      border-radius: 8px;
+      border-left: 3px solid #667eea;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #2d3748;
+    }
+
+    .collapsible-section {
+      margin-bottom: 10px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: white;
+    }
+
+    .section-header {
+      padding: 12px;
+      background: #f7fafc;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+      transition: background 0.2s;
+      user-select: none;
+    }
+
+    .section-header:hover {
+      background: #edf2f7;
+    }
+
+    .section-header .arrow {
+      transition: transform 0.2s;
+      color: #667eea;
+      font-size: 12px;
+    }
+
+    .section-header.active .arrow {
+      transform: rotate(180deg);
+    }
+
+    .section-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      padding: 0 12px;
+    }
+
+    .section-content.active {
+      max-height: 1000px;
+      padding: 12px;
+    }
+
+    .info-box {
+      background: #ebf8ff;
+      border-left: 3px solid #4299e1;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 4px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #2c5282;
+    }
+
+    .tip-box {
+      background: #f0fff4;
+      border-left: 3px solid #48bb78;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 4px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #22543d;
+    }
+
+    .warning-box {
+      background: #fffaf0;
+      border-left: 3px solid #ed8936;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 4px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #7c2d12;
+    }
+
+    .quick-summary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    .quick-summary h4 {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .quick-summary p {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.5;
+      opacity: 0.95;
+    }
+
+    .category-description {
+      font-size: 11px;
+      color: #718096;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .history {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .history h3 {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      color: #4a5568;
+    }
+
+    .history-item {
+      background: white;
+      padding: 10px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      border-left: 3px solid #667eea;
+    }
+
+    .history-item strong {
+      color: #2d3748;
+    }
+
+    .history-item .score-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-left: 5px;
+    }
+
+    .score-badge.low {
+      background: #fed7d7;
+      color: #c53030;
+    }
+
+    .score-badge.medium {
+      background: #feebc8;
+      color: #c05621;
+    }
+
+    .score-badge.high {
+      background: #c6f6d5;
+      color: #22543d;
+    }
+
+    .clear-history {
+      width: 100%;
+      padding: 8px;
+      margin-top: 10px;
+      background: #e53e3e;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .clear-history:hover {
+      background: #c53030;
+    }
+
+    .error {
+      background: #fed7d7;
+      color: #c53030;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    .info {
+      background: #bee3f8;
+      color: #2c5282;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1><img src="icon.png" alt="icon" style="width:30px; vertical-align:middle; margin-right:8px;">
+        GreenLens
+      </h1>
+      <p></p>
+      <button id="rewardsBtn" style="position: absolute; top: 15px; right: 55px; background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;">🎁</button>
+      <button id="settingsBtn" style="position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;">⚙️</button>
+    </div>
+
+    <div class="content">
+      <div class="api-key-section" id="apiKeySection">
+        <label for="apiKey">Claude API Key:</label>
+        <input type="password" id="apiKey" placeholder="sk-ant-...">
+        <button id="saveApiKey">Save API Key</button>
+        <div class="info" style="margin-top: 8px;">
+          Get your API key from <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>
+        </div>
+      </div>
+
+      <div id="rewardsSection" style="display: none; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 20px; border-radius: 8px; margin-bottom: 15px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+          <h3 style="margin: 0; color: white; font-size: 16px;">🎁 Rewards Tracker</h3>
+          <button id="closeRewards" style="background: rgba(255,255,255,0.3); border: none; color: white; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-size: 14px;">×</button>
+        </div>
+        
+        <div style="background: rgba(255,255,255,0.95); padding: 15px; border-radius: 8px; margin-bottom: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div style="font-size: 12px; color: #4a5568; font-weight: 600;">
+              Progress to Next Coupon
+            </div>
+            <div style="font-size: 14px; font-weight: bold; color: #667eea;">
+              <span id="currentPoints">0</span> / 10 pts
+            </div>
+          </div>
+          
+          <div style="background: #e2e8f0; height: 24px; border-radius: 12px; overflow: hidden; position: relative; margin-bottom: 8px;">
+            <div id="progressBar" style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); height: 100%; width: 0%; transition: width 0.5s ease;"></div>
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 11px; font-weight: 600; color: #2d3748;">
+              <span id="progressPercent">0</span>%
+            </div>
+          </div>
+        </div>
+
+        <div id="rewardUnlocked" style="display: none; background: rgba(255,255,255,0.95); padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 12px;">
+          <div style="font-size: 32px; margin-bottom: 8px;">🎉</div>
+          <div style="font-size: 14px; font-weight: 600; color: #2d3748; margin-bottom: 4px;">Coupon Unlocked!</div>
+          <div style="font-size: 12px; color: #4a5568; margin-bottom: 12px;">You've earned 10 points!</div>
+          <div id="couponCode" style="background: #f7fafc; border: 2px dashed #667eea; padding: 12px; border-radius: 6px; margin-bottom: 10px;">
+            <div style="font-size: 10px; color: #718096; margin-bottom: 4px;">Your Coupon Code</div>
+            <div style="font-size: 18px; font-weight: bold; color: #667eea; letter-spacing: 2px; font-family: monospace;" id="couponCodeText">LOADING...</div>
+          </div>
+          <button id="resetRewards" style="width: 100%; padding: 8px; background: #667eea; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 600;">Start New Challenge</button>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.95); padding: 12px; border-radius: 6px; margin-bottom: 12px;">
+          <div style="font-size: 11px; font-weight: 600; color: #2d3748; margin-bottom: 8px;">📊 How to Earn Points:</div>
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
+              <span style="color: #4a5568;">🟡 Score 7.0 - 7.9</span>
+              <span style="background: #feebc8; color: #c05621; padding: 2px 8px; border-radius: 10px; font-weight: 600;">+5 pts</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
+              <span style="color: #4a5568;">🔵 Score 8.0 - 8.9</span>
+              <span style="background: #bee3f8; color: #2c5282; padding: 2px 8px; border-radius: 10px; font-weight: 600;">+15 pts</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
+              <span style="color: #4a5568;">🟢 Score 9.0 - 10.0</span>
+              <span style="background: #c6f6d5; color: #22543d; padding: 2px 8px; border-radius: 10px; font-weight: 600;">+30 pts</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.2); padding: 12px; border-radius: 6px;">
+          <div style="font-size: 11px; color: white; line-height: 1.5;">
+            <strong>💡 How it works:</strong><br>
+            Add high-scoring items (7+) to your cart to earn points. Reach just 10 points to unlock a special eco-friendly shopping coupon!
+          </div>
+        </div>
+      </div>
+
+      <div class="analyze-section">
+        <button id="analyzeBtn">Analyze Current Page</button>
+      </div>
+
+      <div class="cart-tracker" style="background: #f7fafc; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+        <h3 style="margin: 0 0 10px 0; font-size: 14px; color: #4a5568; display: flex; align-items: center; justify-content: space-between;">
+          <span>🛒 Cart Tracker</span>
+          <button id="addToCartBtn" style="background: #667eea; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: 600;">Add to Cart</button>
+        </h3>
+        <div id="cartStats" style="display: none;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+            <div style="background: white; padding: 10px; border-radius: 6px; text-align: center;">
+              <div style="font-size: 20px; font-weight: bold; color: #667eea;" id="cartAverage">-</div>
+              <div style="font-size: 10px; color: #718096; margin-top: 2px;">Avg Score</div>
+            </div>
+            <div style="background: white; padding: 10px; border-radius: 6px; text-align: center;">
+              <div style="font-size: 20px; font-weight: bold; color: #f56565;" id="totalCarbon">-</div>
+              <div style="font-size: 10px; color: #718096; margin-top: 2px;">kg CO₂e</div>
+            </div>
+            <div style="background: white; padding: 10px; border-radius: 6px; text-align: center;">
+              <div style="font-size: 20px; font-weight: bold; color: #667eea;" id="cartCount">0</div>
+              <div style="font-size: 10px; color: #718096; margin-top: 2px;">Items</div>
+            </div>
+          </div>
+          <div id="cartItems" style="max-height: 150px; overflow-y: auto;"></div>
+          <button id="clearCart" style="width: 100%; padding: 8px; margin-top: 10px; background: #e53e3e; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 600;">Clear Cart</button>
+        </div>
+        <div id="emptyCart" style="text-align: center; color: #a0aec0; font-size: 12px; padding: 10px;">
+          No items in cart yet
+        </div>
+      </div>
+
+      <div id="results" class="results">
+        <div id="loading" class="loading">
+          <div>🌍 Analyzing sustainability...</div>
+        </div>
+        <div id="analysis" style="display: none;">
+          <div class="score">
+            <div id="scoreCircle" class="score-circle">-</div>
+            <div class="score-label">Sustainability Score</div>
+          </div>
+          <div id="analysisText" class="analysis"></div>
+        </div>
+        <div id="error" class="error" style="display: none;"></div>
+      </div>
+
+      <div class="history">
+        <h3>📊 Recent Analysis</h3>
+        <div id="historyList"></div>
+        <button id="clearHistory" class="clear-history">Clear History</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
